@@ -2,32 +2,34 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MisterAI IPTV Player</title>
     <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
     <style>
-        body { margin: 0; background: #0f0f0f; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; height: 100vh; overflow: hidden; }
-        #sidebar { width: 350px; background: #1a1a1a; border-left: 1px solid #333; display: flex; flex-direction: column; }
-        #header { padding: 20px; background: #252525; text-align: center; font-weight: bold; }
+        body { margin: 0; background: #0f0f0f; color: white; font-family: sans-serif; display: flex; height: 100vh; }
+        #sidebar { width: 300px; background: #1a1a1a; display: flex; flex-direction: column; border-left: 1px solid #333; }
+        #mac-selector { padding: 15px; background: #222; border: none; color: #00ffcc; font-weight: bold; }
         #channel-list { flex: 1; overflow-y: auto; }
-        .channel-card { padding: 15px; border-bottom: 1px solid #222; cursor: pointer; transition: 0.3s; }
-        .channel-card:hover { background: #333; color: #00ffcc; }
-        #main-viewer { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: black; }
-        .video-js { width: 90% !important; height: 70% !important; border-radius: 8px; overflow: hidden; }
+        .channel-card { padding: 12px; border-bottom: 1px solid #222; cursor: pointer; }
+        .channel-card:hover { background: #333; }
+        #main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .video-js { width: 80%; height: 60%; }
     </style>
 </head>
 <body>
-
     <div id="sidebar">
-        <div id="header">قائمة القنوات (MisterAI)</div>
+        <select id="mac-selector" onchange="updateMac(this.value)">
+            <option value="00:1A:79:4c:ca:58">MAC 1 (4c:ca:58)</option>
+            <option value="00:1A:79:68:8d:e9">MAC 2 (68:8d:e9)</option>
+            <option value="00:1A:79:52:6F:BD">MAC 3 (52:6F:BD)</option>
+            <option value="00:1A:79:75:23:9A">MAC 4 (75:23:9A)</option>
+            <option value="00:1A:79:B5:19:54">MAC 5 (B5:19:54)</option>
+        </select>
         <div id="channel-list">جاري التحميل...</div>
     </div>
-
-    <div id="main-viewer">
-        <video id="iptv-player" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto"></video>
-        <h2 id="current-channel">اختر قناة للبدء</h2>
+    <div id="main">
+        <video id="iptv-player" class="video-js vjs-default-skin" controls preload="auto"></video>
+        <h3 id="status">اختر قناة</h3>
     </div>
-
     <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
     <script src="script.js"></script>
 </body>
