@@ -2,34 +2,43 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>MisterAI IPTV Player</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MisterAI Pro IPTV</title>
     <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
     <style>
-        body { margin: 0; background: #0f0f0f; color: white; font-family: sans-serif; display: flex; height: 100vh; }
-        #sidebar { width: 300px; background: #1a1a1a; display: flex; flex-direction: column; border-left: 1px solid #333; }
-        #mac-selector { padding: 15px; background: #222; border: none; color: #00ffcc; font-weight: bold; }
-        #channel-list { flex: 1; overflow-y: auto; }
-        .channel-card { padding: 12px; border-bottom: 1px solid #222; cursor: pointer; }
-        .channel-card:hover { background: #333; }
-        #main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .video-js { width: 80%; height: 60%; }
+        body { margin: 0; background: #0f0f0f; color: #fff; font-family: 'Segoe UI', sans-serif; display: flex; height: 100vh; }
+        #sidebar { width: 350px; background: #1a1a1a; border-left: 2px solid #00ffcc; display: flex; flex-direction: column; }
+        .config-panel { padding: 20px; background: #222; border-bottom: 1px solid #333; }
+        select, input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: none; background: #333; color: #00ffcc; font-weight: bold; }
+        #channel-list { flex: 1; overflow-y: auto; padding: 10px; }
+        .channel-item { padding: 15px; border-bottom: 1px solid #333; cursor: pointer; transition: 0.2s; border-radius: 5px; margin-bottom: 5px; }
+        .channel-item:hover { background: #00ffcc; color: #000; font-weight: bold; }
+        #main-player { flex: 1; background: #000; position: relative; }
+        .video-js { width: 100% !important; height: 100% !important; }
+        .loading { text-align: center; padding: 20px; color: #00ffcc; }
     </style>
 </head>
 <body>
+
     <div id="sidebar">
-        <select id="mac-selector" onchange="updateMac(this.value)">
-            <option value="00:1A:79:4c:ca:58">MAC 1 (4c:ca:58)</option>
-            <option value="00:1A:79:68:8d:e9">MAC 2 (68:8d:e9)</option>
-            <option value="00:1A:79:52:6F:BD">MAC 3 (52:6F:BD)</option>
-            <option value="00:1A:79:75:23:9A">MAC 4 (75:23:9A)</option>
-            <option value="00:1A:79:B5:19:54">MAC 5 (B5:19:54)</option>
-        </select>
-        <div id="channel-list">جاري التحميل...</div>
+        <div class="config-panel">
+            <h2 style="color: #00ffcc; margin: 0 0 15px 0;">MisterAI Pro</h2>
+            <select id="server-select" onchange="loadChannels()">
+                <option value="http://globaltv1.net:8080|00:1A:79:25:06:93">GlobalTV 1 (2026)</option>
+                <option value="http://globaltv1.net:8080|00:1A:79:C2:7A:19">GlobalTV 2 (2026)</option>
+                <option value="http://fastrunner.live:8080|00:1A:79:FA:63:EE">FastRunner VIP (2026)</option>
+                <option value="http://eu.majes-line.co|00:1A:79:FC:C1:8D">Majes-Line (2026)</option>
+                <option value="http://xegd.ultapulta.com/stalker_portal|00:1A:79:5B:06:E8">UltaPulta Asia</option>
+            </select>
+            <input type="text" id="search" placeholder="ابحث عن قناة..." onkeyup="filterChannels()">
+        </div>
+        <div id="channel-list"></div>
     </div>
-    <div id="main">
-        <video id="iptv-player" class="video-js vjs-default-skin" controls preload="auto"></video>
-        <h3 id="status">اختر قناة</h3>
+
+    <div id="main-player">
+        <video id="iptv-player" class="video-js vjs-big-play-centered" controls preload="auto"></video>
     </div>
+
     <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
     <script src="script.js"></script>
 </body>
