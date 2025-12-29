@@ -1,39 +1,17 @@
-let currentMac = document.getElementById('mac-selector').value;
-const player = videojs('iptv-player');
+const API_BASE = "/api/portal"; 
 
-function updateMac(val) {
-    currentMac = val;
-    fetchChannels();
-}
-
-async function fetchChannels() {
+// دالة جلب القنوات المحدثة
+async function fetchChannels(mac) {
     const list = document.getElementById('channel-list');
-    list.innerHTML = "جاري التحميل...";
+    list.innerHTML = "جاري الاتصال بالسيرفر...";
+    
     try {
-        const res = await fetch(`/api/portal?action=get_all_channels&mac=${currentMac}`);
-        const data = await res.json();
-        const channels = data.data || data;
+        const response = await fetch(`${API_BASE}?action=get_all_channels&mac=${mac}`);
+        const data = await response.json();
         
-        list.innerHTML = "";
-        channels.forEach(ch => {
-            const div = document.createElement('div');
-            div.className = 'channel-card';
-            div.innerText = ch.name;
-            div.onclick = () => playChannel(ch.cmd, ch.name);
-            list.appendChild(div);
-        });
-    } catch (e) { list.innerHTML = "خطأ في جلب البيانات"; }
+        // إذا كان السيرفر يتطلب handshake أولاً، قد تحتاج لطلب إضافي هنا
+        renderChannels(data.data || data);
+    } catch (e) {
+        list.innerHTML = "خطأ في جلب البيانات. قد يكون الماك محظوراً.";
+    }
 }
-
-async function playChannel(cmd, name) {
-    document.getElementById('status').innerText = "جاري تشغيل: " + name;
-    try {
-        const res = await fetch(`/api/portal?action=get_link&mac=${currentMac}&cmd=${encodeURIComponent(cmd)}`);
-        const data = await res.json();
-        const url = data.cmd || data;
-        player.src({ src: url, type: 'application/x-mpegURL' });
-        player.play();
-    } catch (e) { alert("فشل تشغيل القناة"); }
-}
-
-fetchChannels();
