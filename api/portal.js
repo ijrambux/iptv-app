@@ -12,12 +12,11 @@ module.exports = async (req, res) => {
                 responseType: 'stream',
                 timeout: 10000
             });
-            // تمرير الفيديو مباشرة للمتصفح كأنه من موقعك
             response.data.pipe(res);
         } catch (e) {
-            res.status(500).json({ error: "فشل الاتصال برابط البث" });
+            res.status(500).send("Proxy Error");
         }
     } else {
-        res.status(400).send("طلب غير صحيح");
+        res.status(400).send("Invalid Request");
     }
 };
