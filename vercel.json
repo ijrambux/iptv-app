@@ -1,6 +1,5 @@
 {
   "rewrites": [
-    { "source": "/api/portal", "destination": "/api/portal.js" },
-    { "source": "/(.*)", "destination": "/public/$1" }
+    { "source": "/api/(.*)", "destination": "/api/$1" }
   ]
 }
