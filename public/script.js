@@ -1,58 +1,59 @@
-const API_BASE = "/api/portal"; 
-const MAC = "00:1A:79:25:06:93"; // الماك الجديد الشغال
+let allChannels = [];
+const player = videojs('iptv-player');
 
-const player = videojs('iptv-player', {
-    fluid: true,
-    controls: true,
-    autoplay: false,
-    preload: 'auto'
-});
-
-async function fetchChannels() {
-    const listContainer = document.getElementById('channel-list');
-    listContainer.innerHTML = '<div style="padding:20px;">جاري جلب 14,000 قناة...</div>';
+async function loadChannels() {
+    const listDiv = document.getElementById('channel-list');
+    const [host, mac] = document.getElementById('server-select').value.split('|');
+    
+    listDiv.innerHTML = '<div class="loading">جاري جلب آلاف القنوات...</div>';
 
     try {
-        const response = await fetch(`${API_BASE}?action=get_all_channels&mac=${encodeURIComponent(MAC)}`);
+        const response = await fetch(`/api/portal?action=get_all_channels&host=${encodeURIComponent(host)}&mac=${mac}`);
         const data = await response.json();
         
-        // السيرفر الجديد يرسل مصفوفة قنوات ضخمة
-        const channels = data.js || data.data || data;
-
-        if (Array.isArray(channels) && channels.length > 0) {
-            renderChannels(channels);
-        } else {
-            listContainer.innerHTML = '<div style="padding:20px;">الماك يعمل ولكن لم يرسل قنوات. جرب تحديث الصفحة.</div>';
-        }
+        allChannels = data.js || data;
+        displayChannels(allChannels);
     } catch (e) {
-        listContainer.innerHTML = '<div style="padding:20px; color:red;">خطأ في الاتصال بالسيرفر الجديد.</div>';
+        listDiv.innerHTML = '<div class="loading" style="color:red;">فشل الاتصال بهذا السيرفر.</div>';
     }
 }
 
-function renderChannels(channels) {
-    const list = document.getElementById('channel-list');
-    list.innerHTML = "";
+function displayChannels(channels) {
+    const listDiv = document.getElementById('channel-list');
+    listDiv.innerHTML = '';
+    
+    if (!Array.isArray(channels)) return;
+
     channels.forEach(ch => {
         if (ch.name) {
             const div = document.createElement('div');
-            div.className = 'channel-card';
+            div.className = 'channel-item';
             div.innerText = ch.name;
-            div.onclick = () => playStream(ch.cmd, ch.name);
-            list.appendChild(div);
+            div.onclick = () => playStream(ch.cmd);
+            listDiv.appendChild(div);
         }
     });
 }
 
-async function playStream(cmd, name) {
-    try {
-        const response = await fetch(`${API_BASE}?action=get_link&mac=${encodeURIComponent(MAC)}&cmd=${encodeURIComponent(cmd)}`);
-        const data = await response.json();
-        const streamUrl = data.cmd || data; 
-        if (streamUrl && streamUrl.startsWith('http')) {
-            player.src({ src: streamUrl, type: 'application/x-mpegURL' });
-            player.play();
-        }
-    } catch (e) { alert("فشل تشغيل القناة"); }
+function filterChannels() {
+    const query = document.getElementById('search').value.toLowerCase();
+    const filtered = allChannels.filter(c => c.name.toLowerCase().includes(query));
+    displayChannels(filtered);
 }
 
-document.addEventListener('DOMContentLoaded', fetchChannels);
+async function playStream(cmd) {
+    const [host, mac] = document.getElementById('server-select').value.split('|');
+    try {
+        const res = await fetch(`/api/portal?action=get_link&host=${encodeURIComponent(host)}&mac=${mac}&cmd=${encodeURIComponent(cmd)}`);
+        const data = await res.json();
+        const url = data.cmd || data;
+        
+        if (url && url.startsWith('http')) {
+            player.src({ src: url, type: 'application/x-mpegURL' });
+            player.play();
+        }
+    } catch (e) { alert("خطأ في تشغيل الرابط"); }
+}
+
+// تشغيل السيرفر الأول تلقائياً عند الفتح
+window.onload = loadChannels;
